@@ -7,10 +7,27 @@ void listaTarefas();
 void leInformacoesDoProcesso(int PID);
 namespace fs = std::filesystem;
 
+class Processo {
+private:
+    std::string nome;   // Nome do processo
+    int PID;            // PID
+    int PPID;           // PID da tarefa pai
+    char estado;        // Estado (R = running, S = sleeping...)
+    int uid;            // Usuário dono da tarefa
+    long cpuUserTicks;  // Tempo de uso de CPU no modo usuário
+    long cpuSysTicks;   // Tempo de uso de CPU no modo sistema
+    int threads;        // Threads do programam
+    std::string comandoCMD; // Comando que iniciou a tarefa
+public:
+    Processo();
+    ~Processo();
+};
+
+
 int main()
 {
     // listaTarefas();
-    leInformacoesDoProcesso(1);
+    leInformacoesDoProcesso(938);
 }
 
 void listaTarefas()
