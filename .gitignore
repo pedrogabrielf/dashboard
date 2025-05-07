@@ -1,0 +1,34 @@
+# 🛠 Arquivos de build
+/build/
+/CMakeFiles/
+/Makefile
+cmake_install.cmake
+CMakeCache.txt
+
+# 🧹 Binários
+*.o
+*.out
+*.exe
+*.a
+*.so
+*.bin
+
+# ✏️ Arquivos temporários
+*.log
+*.tmp
+*~
+*.swp
+*.swo
+
+# 💻 VSCode
+.vscode/
+*.code-workspace
+
+# 🧪 Testes e artefatos
+/test_output/
+*.gcda
+*.gcno
+*.gcov
+
+# 🔍 Outros
+.DS_Store
