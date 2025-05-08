@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Objeto
 class Processo:
     def __init__(self, pid):
         self.pid = pid       # PID do proceso
@@ -12,7 +13,23 @@ class Processo:
         self.threads = 0     # Threads do processo
         self.commandCMD = '' # Comando que iniciou o processo
 
-    def iniciarProcesso(self):
+    def cmdLine(self):
+        try:
+            cmd_path = '/proc/' + str(self.pid) + '/cmdline'
+            with open(cmd_path, 'r') as f:
+                conteudo = f.read()
+                self.commandCMD = conteudo.replace('\x00', ' ').strip()
+        except:
+            self.commandCMD = 'NO COMMAND'
+
+    def tempoDeCPU(self):
+        path_cpu = '/proc/' + str(self.pid) + '/stat'
+        with open(path_cpu, 'r') as f:
+            valores = f.read().split()
+            self.cpuUserTick = int(valores[13])  # tempo em ticks no modo usuário
+            self.cpuSysTick = int(valores[14])  # tempo em ticks no modo sistema
+
+    def statusProcesso(self):
         status_path = '/proc/' + str(self.pid) + '/status'
         try:
             with open(status_path, 'r') as f:
@@ -32,13 +49,18 @@ class Processo:
                         break
         except FileNotFoundError:
             print(f"Processo {self.pid} não encontrado.")
-            
+    def iniciarProcesso(self):
+        self.statusProcesso()
+        self.tempoDeCPU()
+        self.cmdLine()
 
     def __repr__(self):
         return (f"Processo {self.name} PID={self.pid} PPID={self.ppid} Estado={self.estado} "
                 f"UID={self.uid} CPU(User)={self.cpuUserTick} CPU(Sys)={self.cpuSysTick} "
                 f"Threads={self.threads} CMD='{self.commandCMD}'>")
 
+
+# Funções
 def imprimeArquivo(path):
     with open(path, 'r') as f:
             for linha in f:
@@ -47,17 +69,19 @@ def imprimeArquivo(path):
 def cpuInfo():
     imprimeArquivo('/proc/cpuinfo')
 
-def statusProcesso(PID):
-    path = "/proc/" + str(PID) + "/status"
-    imprimeArquivo(path)
 
 def listaProcessos():
+    listaProcessos = []
     proc = Path('/proc')
     PIDS = [int(p.name) for p in proc.iterdir() if p.is_dir() and p.name.isdigit()]
-    print(sorted(PIDS))
+    for i in PIDS:
+        aux = Processo(i)
+        aux.iniciarProcesso()
+        listaProcessos.append(aux)
+    return listaProcessos
 
 
-teste = Processo(100)
+processosLista = listaProcessos()
 
-teste.iniciarProcesso()
-print(teste)
+for p in processosLista:
+    print(p.commandCMD)
