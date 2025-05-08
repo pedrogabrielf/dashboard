@@ -12,6 +12,7 @@ class Processo:
         self.cpuSysTick = 0  # Tempo de uso de CPU modo sistema
         self.threads = 0     # Threads do processo
         self.commandCMD = '' # Comando que iniciou o processo
+        self.memoriaKB = 0   # Memória RAM usada (em kB)
 
     def cmdLine(self):
         try:
@@ -45,6 +46,8 @@ class Processo:
                     elif linha.startswith("Threads:"):
                         self.threads = int(linha.split()[1])
                     # Se já tiver todos os campos, pode parar cedo (opcional)
+                    elif linha.startswith("VmRSS:"):
+                        self.memoriaKB = int(linha.split()[1])  # valor em kB
                     if all([self.name, self.ppid, self.estado, self.uid, self.threads]):
                         break
         except FileNotFoundError:
@@ -55,9 +58,18 @@ class Processo:
         self.cmdLine()
 
     def __repr__(self):
-        return (f"Processo {self.name} PID={self.pid} PPID={self.ppid} Estado={self.estado} "
-                f"UID={self.uid} CPU(User)={self.cpuUserTick} CPU(Sys)={self.cpuSysTick} "
-                f"Threads={self.threads} CMD='{self.commandCMD}'>")
+        return (
+        f"┌─ Processo PID={self.pid}\n"
+        f"│  Nome        : {self.name}\n"
+        f"│  Estado      : {self.estado}\n"
+        f"│  PPID        : {self.ppid}\n"
+        f"│  UID         : {self.uid}\n"
+        f"│  Threads     : {self.threads}\n"
+        f"│  CPU (User)  : {self.cpuUserTick} ticks\n"
+        f"│  CPU (Kernel): {self.cpuSysTick} ticks\n"
+        f"│  Memória RAM : {self.memoriaKB} kB\n"
+        f"└────────────────────────────────────────────"
+    )
 
 
 # Funções
@@ -84,4 +96,4 @@ def listaProcessos():
 processosLista = listaProcessos()
 
 for p in processosLista:
-    print(p.commandCMD)
+    print(p)
