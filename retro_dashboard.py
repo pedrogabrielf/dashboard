@@ -1,7 +1,9 @@
 import streamlit as st
 import psutil
 import time
+from model import listaProcessos
 
+# Streamlit UI
 st.set_page_config(
     page_title="Dashboard Retrô de Processos",
     layout="wide",
@@ -29,29 +31,22 @@ st.title("🟢 DASHBOARD RETRÔ DE PROCESSOS (Tempo Real)")
 
 placeholder = st.empty()
 
-# Loop de atualização em tempo real
+# Loop de atualização
 while True:
     with placeholder.container():
-        processes = list(psutil.process_iter())
-        processes.sort(key=lambda p: p.pid)
-        table = []
-        for p in processes:
-            try:
-                with p.oneshot():
-                    table.append({
-                        "PID": p.pid,
-                        "Nome": p.name(),
-                        "Status": p.status(),
-                        "PPID": p.ppid(),
-                        "UID": p.uids().real if hasattr(p, "uids") else "N/A",
-                        "Threads": p.num_threads(),
-                        "CPU (user)": f"{p.cpu_times().user:.1f}",
-                        "CPU (kernel)": f"{p.cpu_times().system:.1f}",
-                        "RAM (KB)": f"{p.memory_info().rss // 1024}"
-                    })
-            except Exception:
-                continue
+        processos = listaProcessos()
+        tabela = [{
+            "PID": p.pid,
+            "Nome": p.name,
+            "Estado": p.estado,
+            "PPID": p.ppid,
+            "UID": p.uid,
+            "Threads": p.threads,
+            "CPU (user ticks)": p.cpuUserTick,
+            "CPU (kernel ticks)": p.cpuSysTick,
+            "RAM (KB)": p.memoriaKB
+        } for p in processos]
 
-        st.dataframe(table, use_container_width=True)
+        st.dataframe(tabela, use_container_width=True)
 
-    time.sleep(2)  # Atualiza a cada 2 segundos
+    time.sleep(2)
